@@ -1,20 +1,21 @@
 import { ExecArgs } from "@medusajs/framework/types"
-import { Modules } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 
 export default async function createAdmin({ container }: ExecArgs) {
+  const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
   const userService = container.resolve(Modules.USER)
-  
+
   try {
-    const user = await userService.create({
+    const adminUser = await userService.create({
       email: "admin@example.com",
       password: "supersecret",
-      first_name: "Admin",
-      last_name: "User",
       role: "admin"
     })
-    
-    console.log("Admin user created successfully:", user)
+
+    logger.info("Admin user created successfully:", adminUser)
+    return adminUser
   } catch (error) {
-    console.error("Failed to create admin user:", error)
+    logger.error("Failed to create admin user:", error)
+    throw error
   }
 }
